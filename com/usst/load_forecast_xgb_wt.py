@@ -68,6 +68,8 @@ yes_ave_cD1_ = yes_ave_cD1_.tolist()
 yes_ave_cD2_ = yes_ave_cD2_.tolist()
 yes_ave_cD3_ = yes_ave_cD3_.tolist()
 
+print(yes_ave_cA3)
+
 printc("用db5小波进行yes_load 3层分解")
 yes_load = np.array(df.iloc[:,2:3]).reshape(1,-1)
 # print(ML.shape)
@@ -228,12 +230,9 @@ train_y_cA3 = standard_scaler_y_cA3.fit_transform(train_y_cA3).ravel()
 test_x_cA3 = standard_scaler_x_cA3.transform(test_x_cA3)
 test_y_cA3= standard_scaler_y_cA3.transform(test_y_cA3).ravel()
 
-# model_xgb_cA3 = XGBRegressor()
-# model_xgb_cA3.fit(train_x_cA3, train_y_cA3, verbose=False)
-# predict_y_cA3 = model_xgb_cA3.predict(test_x_cA3)
-
-model_svm = svm_cross_validation(train_x_cA3, train_y_cA3)
-predict_y_cA3 = model_svm.predict(test_x_cA3)
+model_xgb_cA3 = XGBRegressor()
+model_xgb_cA3.fit(train_x_cA3, train_y_cA3, verbose=False)
+predict_y_cA3 = model_xgb_cA3.predict(test_x_cA3)
 
 printc("反归一化")
 test_yy_cA3 = np.array(test_y_cA3).reshape(1, -1)
@@ -274,12 +273,9 @@ train_y_cD3 = standard_scaler_y_cD3.fit_transform(train_y_cD3).ravel()
 test_x_cD3 = standard_scaler_x_cD3.transform(test_x_cD3)
 test_y_cD3= standard_scaler_y_cD3.transform(test_y_cD3).ravel()
 
-# model_xgb_cD3 = XGBRegressor()
-# model_xgb_cD3.fit(train_x_cD3, train_y_cD3, verbose=False)
-# predict_y_cD3 = model_xgb_cD3.predict(test_x_cD3)
-
-model_svm = svm_cross_validation(train_x_cD3, train_y_cD3)
-predict_y_cD3 = model_svm.predict(test_x_cD3)
+model_xgb_cD3 = XGBRegressor()
+model_xgb_cD3.fit(train_x_cD3, train_y_cD3, verbose=False)
+predict_y_cD3 = model_xgb_cD3.predict(test_x_cD3)
 
 printc("反归一化")
 test_yy_cD3 = np.array(test_y_cD3).reshape(1, -1)
@@ -320,12 +316,10 @@ train_y_cD2 = standard_scaler_y_cD2.fit_transform(train_y_cD2).ravel()
 test_x_cD2 = standard_scaler_x_cD2.transform(test_x_cD2)
 test_y_cD2= standard_scaler_y_cD2.transform(test_y_cD2).ravel()
 
-# model_xgb_cD2 = XGBRegressor()
-# model_xgb_cD2.fit(train_x_cD2, train_y_cD2, verbose=False)
-# predict_y_cD2 = model_xgb_cD2.predict(test_x_cD2)
+model_xgb_cD2 = XGBRegressor()
+model_xgb_cD2.fit(train_x_cD2, train_y_cD2, verbose=False)
+predict_y_cD2 = model_xgb_cD2.predict(test_x_cD2)
 
-model_svm = svm_cross_validation(train_x_cD2, train_y_cD2)
-predict_y_cD2 = model_svm.predict(test_x_cD2)
 
 printc("反归一化")
 test_yy_cD2 = np.array(test_y_cD2).reshape(1, -1)
@@ -366,12 +360,9 @@ train_y_cD1 = standard_scaler_y_cD1.fit_transform(train_y_cD1).ravel()
 test_x_cD1 = standard_scaler_x_cD1.transform(test_x_cD1)
 test_y_cD1= standard_scaler_y_cD1.transform(test_y_cD1).ravel()
 
-# model_xgb_cD1 = XGBRegressor()
-# model_xgb_cD1.fit(train_x_cD1, train_y_cD1, verbose=False)
-# predict_y_cD1 = model_xgb_cD1.predict(test_x_cD1)
-
-model_svm = svm_cross_validation(train_x_cD1, train_y_cD1)
-predict_y_cD1 = model_svm.predict(test_x_cD1)
+model_xgb_cD1 = XGBRegressor()
+model_xgb_cD1.fit(train_x_cD1, train_y_cD1, verbose=False)
+predict_y_cD1 = model_xgb_cD1.predict(test_x_cD1)
 
 printc("反归一化")
 test_yy_cD1 = np.array(test_y_cD1).reshape(1, -1)

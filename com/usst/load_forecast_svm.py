@@ -60,4 +60,8 @@ origin_test_y = standard_scaler_y.inverse_transform(test_yy).ravel()
 predict_yy = np.array(predict_svm).reshape(1, -1)
 origin_predict_y = standard_scaler_y.inverse_transform(predict_yy).ravel()
 
+print("计算准确率误差")
+#print("Mean Absolute Error: " + str(mean_absolute_error(predict_y, test_y)))
+error = 1 - mean_absolute_error(predict_svm, test_y)
+print(error)
 plot_result(origin_predict_y[0:50], origin_test_y[0:50])
