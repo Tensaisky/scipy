@@ -20,7 +20,7 @@ def precession(label, predict_y):
     print(1 - e)
 
 def svm_cross_validation(x, y):
-    model = NuSVR(kernel='rbf')
+    model = NuSVR(kernel='rbf',nu=0.001)
     param_grid = {'C': [1e-3, 1e-2, 1e-1, 1, 10, 100, 1000], 'gamma': [0.001, 0.0001]}
     grid_search = GridSearchCV(model, param_grid, n_jobs =8, verbose=1)
     grid_search.fit(x, y)#训练模型
@@ -103,46 +103,6 @@ DAG_cD1_ = DAG_cD1_.tolist()
 DAG_cD2_ = DAG_cD2_.tolist()
 DAG_cD3_ = DAG_cD3_.tolist()
 
-# printc("用db5小波进行最低温度3层分解")
-# LT = np.array(df.iloc[:,4:5]).reshape(1,-1)
-# LT_wt = pywt.wavedec(LT, 'db5', level=3)
-# LT_cA3, LT_cD3, LT_cD2, LT_cD1 = LT_wt
-#
-# LT_cA3 = np.array(LT_cA3).flatten()
-# LT_cD3 = np.array(LT_cD3).flatten()
-# LT_cD2 = np.array(LT_cD2).flatten()
-# LT_cD1 = np.array(LT_cD1).flatten()
-#
-# LT_cA3_ = pywt.upcoef('a', LT_cA3, 'db5', level=3, take=311)
-# LT_cD1_ = pywt.upcoef('d', LT_cD1, 'db5', level=1, take=311)
-# LT_cD2_ = pywt.upcoef('d', LT_cD2, 'db5', level=2, take=311)
-# LT_cD3_ = pywt.upcoef('d', LT_cD3, 'db5', level=3, take=311)
-#
-# LT_cA3_ = LT_cA3_.tolist()
-# LT_cD1_ = LT_cD1_.tolist()
-# LT_cD2_ = LT_cD2_.tolist()
-# LT_cD3_ = LT_cD3_.tolist()
-
-# printc("用db5小波进行最高温度3层分解")
-# HT = np.array(df.iloc[:,5:6]).reshape(1,-1)
-# HT_wt = pywt.wavedec(HT, 'db5', level=3)
-# HT_cA3, HT_cD3, HT_cD2, HT_cD1 = HT_wt
-#
-# HT_cA3 = np.array(HT_cA3).flatten()
-# HT_cD3 = np.array(HT_cD3).flatten()
-# HT_cD2 = np.array(HT_cD2).flatten()
-# HT_cD1 = np.array(HT_cD1).flatten()
-#
-# HT_cA3_ = pywt.upcoef('a', HT_cA3, 'db5', level=3, take=311)
-# HT_cD1_ = pywt.upcoef('d', HT_cD1, 'db5', level=1, take=311)
-# HT_cD2_ = pywt.upcoef('d', HT_cD2, 'db5', level=2, take=311)
-# HT_cD3_ = pywt.upcoef('d', HT_cD3, 'db5', level=3, take=311)
-#
-# HT_cA3_ = HT_cA3_.tolist()
-# HT_cD1_ = HT_cD1_.tolist()
-# HT_cD2_ = HT_cD2_.tolist()
-# HT_cD3_ = HT_cD3_.tolist()
-
 printc("用db5小波进行发电量3层分解")
 Q = np.array(df.iloc[:,1:2]).reshape(1,-1)
 Q_wt = pywt.wavedec(Q, 'db5', level=3)
@@ -163,8 +123,6 @@ Q_cD1_ = Q_cD1_.tolist()
 Q_cD2_ = Q_cD2_.tolist()
 Q_cD3_ = Q_cD3_.tolist()
 
-##########################################################################
-##########################################################################
 printc("cA3数据")
 df_cA3 = pd.DataFrame({
         "发电量cA3":list(Q_cA3_),

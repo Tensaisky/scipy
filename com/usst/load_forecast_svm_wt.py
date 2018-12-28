@@ -28,7 +28,7 @@ def precession(label, predict_y):
     print(1 - e)
     
 def svm_cross_validation(x, y):
-    model = NuSVR(kernel='rbf')
+    model = NuSVR(kernel='rbf',nu=0.0001)
     param_grid = {'C': [1e-3, 1e-2, 1e-1, 1, 10, 100, 1000], 'gamma': [0.001, 0.0001]}
     grid_search = GridSearchCV(model, param_grid, n_jobs = 8, verbose=1)
     grid_search.fit(x, y)
