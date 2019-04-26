@@ -36,7 +36,7 @@ def precession(label, predict_y):
     print(1 - e)
     
 def svm_cross_validation(x, y):
-    model = NuSVR(kernel='rbf')
+    model = NuSVR(kernel='rbf',nu=0.00001)
     param_grid = {'C': [1e-3, 1e-2, 1e-1, 1, 10, 100, 1000], 'gamma': [0.001, 0.0001]}
     grid_search = GridSearchCV(model, param_grid, n_jobs = 8, verbose=1)
     grid_search.fit(x, y)
@@ -50,8 +50,13 @@ def svm_cross_validation(x, y):
 # 小波分解（自己定义一个名称，x表格起始行，y表格终点行）
 def py_wt(str,x,y):
     signal = np.array(df.iloc[:,x:y]).reshape(1, -1)
+    # print("signal")
+    # print(signal)
     signal_wt = pywt.wavedec(signal, 'db5', level=3)
+    print(signal_wt)
     signal_cA3, signal_cD3, signal_cD2, signal_cD1 = signal_wt
+    # print("signal_cA3")
+    # print(signal_cA3)
 
     signal_cA3 = np.array(signal_cA3).flatten()
     signal_cD3 = np.array(signal_cD3).flatten()
@@ -59,6 +64,7 @@ def py_wt(str,x,y):
     signal_cD1 = np.array(signal_cD1).flatten()
     
     signal_cA3_ = pywt.upcoef('a', signal_cA3, 'db5', level=3, take=311)
+    # signal_cD1_ = pywt.upcoef('d', signal_cD1, 'db5', level=1)
     signal_cD1_ = pywt.upcoef('d', signal_cD1, 'db5', level=1, take=311)
     signal_cD2_ = pywt.upcoef('d', signal_cD2, 'db5', level=2, take=311)
     signal_cD3_ = pywt.upcoef('d', signal_cD3, 'db5', level=3, take=311)
@@ -203,6 +209,10 @@ predict_y = predict_y_cA3 + predict_y_cD1 + origin_predict_y_cD2 + origin_predic
 # 原始数据
 origin_test_y = origin_test_y_cA3 + origin_test_y_cD1 + origin_predict_y_cD2 + origin_predict_y_cD3
 origin_predict_y = origin_predict_y_cA3 + origin_predict_y_cD1 + origin_predict_y_cD2 +origin_predict_y_cD3
+print("origin_test_y")
+print(origin_test_y)
+print("origin_predict_y")
+print(origin_predict_y)
 
 printc("计算准确率误差")
 precession(origin_test_y,origin_predict_y)

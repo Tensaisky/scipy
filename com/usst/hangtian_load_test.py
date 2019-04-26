@@ -10,6 +10,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.svm import NuSVR
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
+import xlrd
 
 #font = matplotlib.font_manager.FontProperties(fname='/usr/share/fonts/wenquanyi/wqy-microhei/wqy-microhei.ttc')
 #matplotlib.rcParams['font.family'] = ['WenQuanYi Micro Hei']
@@ -32,16 +33,20 @@ def precession(label, predict_y):
     print(1 - e)
 
 
-df = pd.read_excel("load1.xlsx")
-df['DATA_TIME'] = pd.to_datetime(df['DATA_TIME'])
+df = pd.read_excel("hangtian_fengji_lasthour.xlsx")
+df['时间'] = pd.to_datetime(df['时间'])
 print(df.head())
 
-X = df.iloc[:, 1:9]
-Y = df.iloc[:, 9:10]
+X = df.iloc[:, 1:7]
+Y = df.iloc[:, 7:8]
 
 #随机划分训练集和测试集
 train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.3)
 
+train_x = df.iloc[1:276, 1:7]
+train_y = df.iloc[1:276, 7:8]
+test_x = df.iloc[276:300, 1:7]
+test_y = df.iloc[276:300, 7:8]
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
 
@@ -78,6 +83,5 @@ origin_predict_y = standard_scaler_y.inverse_transform(predict_yy).ravel()
 print("计算准确率误差")
 precession(origin_test_y, origin_predict_y)
 
-plot_result(origin_predict_y[0:50], origin_test_y[0:50])
+plot_result(origin_predict_y[0:], origin_test_y[0:])
 #plot_result(predict_xgb[0:50], test_y[0:50])
-#plot_result(predict_svm, test_y)
