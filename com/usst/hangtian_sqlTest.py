@@ -40,7 +40,7 @@ def getCountOfSheet():
 def storeData(list):
     # 传入数据list，保存
     # list = [date_time, 1, 2, 3, 4, 5, 6, 7, 8]
-    sql = 'INSERT INTO SYSTEM."sheet_historyPower"(\"时间\",\"昨日此刻温度\",\"昨日此刻风速\",\"昨日此刻湿度\",\"昨日此刻负荷\",\"温度\",\"风速\",\"湿度\",\"负荷\") VALUES(:1,:2,:3,:4,:5,:6,:7,:8,:9)'
+    sql = 'INSERT INTO SYSTEM."sheet_historyPower"(\"时间\",\"星期数\",\"当前整点数\",\"昨日此刻温度\",\"昨日此刻风速\",\"昨日此刻湿度\",\"昨日此刻负荷\",\"温度\",\"风速\",\"湿度\",\"负荷\") VALUES(:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11)'
     cursor.execute(sql, list)
 
 # 返回某一行得时间，从1开始
@@ -240,11 +240,11 @@ for rownum in range(countOfData):
     # 因为时间存储得差异，前后取1分钟
     date_time = date_time - datetime.timedelta(minutes=1)
     date_time_last = getLastDayTime(date_time)
-    # 得到数据
+    # 得到数据特征参数
     lasttemp = getSolarTemp(date_time_last)
     lastspeed = getWindSpeed(date_time_last)
     lasthumidity = getWindHumidity(date_time_last)
-    lastwindDate = getWindData(date_time_last)
+    lastwindDate = getWindData(date_time_last)/1000
     lastsolarDate = getSolarData(date_time_last)
     lastmainsPower = getmainsPowerData(date_time_last)
     lastpower_all = lastwindDate + lastsolarDate + lastmainsPower
@@ -252,15 +252,23 @@ for rownum in range(countOfData):
     temp = getSolarTemp(date_time)
     speed = getWindSpeed(date_time)
     humidity = getWindHumidity(date_time)
-    windDate = getWindData(date_time)
+    windDate = getWindData(date_time)/1000
     solarDate = getSolarData(date_time)
     mainsPower = getmainsPowerData(date_time)
     power_all = windDate + solarDate + mainsPower
-
+    
     # 改回正确时间
     date_time = date_time + datetime.timedelta(minutes=1)
-    print(date_time)
-    values = [date_time,lasttemp,lastspeed,lasthumidity,lastpower_all,temp,speed,humidity,power_all]
+    # 增加整点数和星期数
+    time_hour = date_time.strftime("%Y/%m/%d %H:%M:%S")
+    time_hour = time_hour.split(' ')[1].split(':')[0]
+    time_hour =  int(time_hour)
+
+    date_time_str = date_time.strftime("%Y/%m/%d %H:%M:%S")
+    week = datetime.datetime.strptime(date_time_str,'%Y/%m/%d %H:%M:%S').weekday()
+    week = week + 1
+    
+    values = [date_time,week,time_hour,lasttemp,lastspeed,lasthumidity,lastpower_all,temp,speed,humidity,power_all]
     
     # print(values)
     # 存储数据

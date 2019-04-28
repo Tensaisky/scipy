@@ -37,16 +37,17 @@ df = pd.read_excel("sheet_historyPower.xlsx")
 # df['时间'] = pd.to_datetime(df['时间'])
 # print(df.head())
 
-X = df.iloc[:, 1:5]
-Y = df.iloc[:, 8:9]
+X = df.iloc[:, 1:6]
+Y = df.iloc[:, 9:10]
 
 #随机划分训练集和测试集
 train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.3)
 
-train_x = df.iloc[1:387, 1:5]
-train_y = df.iloc[1:387, 8:9]
-test_x = df.iloc[387:411, 1:5]
-test_y = df.iloc[387:411, 8:9]
+train_x = df.iloc[1:429, 1:6]
+train_y = df.iloc[1:429, 9:10]
+test_x = df.iloc[429:444, 1:6]
+test_y = df.iloc[429:444, 9:10]
+
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
 
