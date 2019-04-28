@@ -33,20 +33,20 @@ def precession(label, predict_y):
     print(1 - e)
 
 
-df = pd.read_excel("hangtian_fengji_lasthour.xlsx")
-df['时间'] = pd.to_datetime(df['时间'])
-print(df.head())
+df = pd.read_excel("sheet_historyPower.xlsx")
+# df['时间'] = pd.to_datetime(df['时间'])
+# print(df.head())
 
-X = df.iloc[:, 1:7]
-Y = df.iloc[:, 7:8]
+X = df.iloc[:, 1:5]
+Y = df.iloc[:, 8:9]
 
 #随机划分训练集和测试集
 train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.3)
 
-train_x = df.iloc[1:276, 1:7]
-train_y = df.iloc[1:276, 7:8]
-test_x = df.iloc[276:300, 1:7]
-test_y = df.iloc[276:300, 7:8]
+train_x = df.iloc[1:387, 1:5]
+train_y = df.iloc[1:387, 8:9]
+test_x = df.iloc[387:411, 1:5]
+test_y = df.iloc[387:411, 8:9]
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
 

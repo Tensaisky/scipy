@@ -17,6 +17,11 @@ def getFistTimeOfSheet():
         date_time_begin = i[0]
     return date_time_begin
 
+def getLastDayTime(daytimenow):
+    # 传入当前日期时间datetime格式，返回昨天此刻时间数据
+    daytimelast = daytimenow - datetime.timedelta(days=1)
+    return daytimelast
+
 def getCountOfSheet():
     sql = """
         select count(*) from SYSTEM."Sheet_mainsPower"
@@ -26,6 +31,12 @@ def getCountOfSheet():
     for i in result:
         count = i[0]
     return count
+
+def storeData(list):
+    # 传入数据list，保存
+    # list = [date_time, 1, 2, 3, 4, 5, 6, 7, 8]
+    sql = 'INSERT INTO SYSTEM."sheet_historyPower"(\"时间\",\"昨日此刻温度\",\"昨日此刻风速\",\"昨日此刻湿度\",\"昨日此刻负荷\",\"温度\",\"风速\",\"湿度\",\"负荷\") VALUES(:1,:2,:3,:4,:5,:6,:7,:8,:9)'
+    cursor.execute(sql, list)
 
 def getRowNumTimeOfSheet(rownum_in):
     # 输入int类型rownum（方便循环），转成str用于查询某一行的时间
@@ -44,6 +55,31 @@ def getRowNumTimeOfSheet(rownum_in):
         date_time = i[1]
         # print(date_time)
     return date_time
+
+# 是否已经记录，有记录返回0，无记录返回1
+def hasNoRecord(date_time_begin):
+    # 输入datetime格式时间参数，转成str类型，只返回一个数据
+    date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
+    date_time_begin_for_search = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin_for_search2 = date_time_begin2.strftime("%Y/%m/%d %H:%M:%S")
+    sqlExit = """
+    SELECT
+    SYSTEM."sheet_historyPower"."时间"
+    FROM
+    SYSTEM."sheet_historyPower"
+    WHERE
+    SYSTEM."sheet_historyPower"."时间" BETWEEN to_date('
+    """ + date_time_begin_for_search + """
+    ','yyyy-mm-dd hh24:mi:ss') AND to_date('
+    """ + date_time_begin_for_search2 + """
+    ','yyyy-mm-dd hh24:mi:ss')
+    """
+    result = cursor.execute(sqlExit)
+    hasRecord = 1
+    for j in result:
+        if j:
+            hasRecord = 0
+    return hasRecord
 
 def getWindDate(date_time_begin):
     # 输入datetime格式时间参数，转成str类型，只返回一个数据
