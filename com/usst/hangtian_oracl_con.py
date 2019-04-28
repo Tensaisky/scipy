@@ -3,20 +3,18 @@ import cx_Oracle
 import datetime
 import os
 os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
-conn = cx_Oracle.connect('system','tiger','192.168.1.106:1521/orcl1')
+conn = cx_Oracle.connect('system','tiger','192.168.1.108:1521/orcl1')
 
 cursor = conn.cursor()
-date_time = '2019/3/28 11:00:00'
-date_time2 = '2019/3/28 11:00:00'
+date_time = '2019/3/26 11:00:00'
+date_time2 = '2019/3/26 11:00:00'
 # str 转 datetime
 date_time = datetime.datetime.strptime(date_time,'%Y/%m/%d %H:%M:%S')
-print(type(date_time))
-print(date_time)
+
 # datetime 转 str
 date_time2 = (date_time+ datetime.timedelta(minutes=(2))).strftime("%Y/%m/%d %H:%M:%S")
-print(date_time2)
-print(type(date_time2))
-print()
+date_time = date_time.strftime("%Y/%m/%d %H:%M:%S")
+
 sql = """
 SELECT
 SYSTEM."wind_2"."时间"
@@ -42,7 +40,7 @@ SYSTEM."wind_2"."时间" BETWEEN to_date('
 # """
 result = cursor.execute(sql)
 for i in result:
-    print(i)
+    print(i[0])
 conn.commit()
 cursor.close()
 conn.close()
