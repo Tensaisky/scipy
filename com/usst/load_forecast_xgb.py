@@ -42,6 +42,11 @@ Y = df.iloc[:, 9:10]
 #随机划分训练集和测试集
 train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.3)
 
+train_x = df.iloc[1:240, 1:9]
+train_y = df.iloc[1:240, 9:10]
+test_x = df.iloc[240:260, 1:9]
+test_y = df.iloc[240:260, 9:10]
+
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
 
