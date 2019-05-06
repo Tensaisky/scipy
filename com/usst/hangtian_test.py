@@ -3,9 +3,9 @@ import cx_Oracle
 import datetime
 import os
 
-os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
-conn = cx_Oracle.connect('system', 'tiger', '192.168.1.108:1521/orcl1')
-cursor = conn.cursor()
+# os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
+# conn = cx_Oracle.connect('system', 'tiger', '192.168.1.108:1521/orcl1')
+# cursor = conn.cursor()
 
 import numpy as np
 import seaborn as sns
@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.svm import NuSVR
+from sqlalchemy import create_engine
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 
@@ -29,20 +30,24 @@ def plot_result(label, predict_y):
     plt.plot(range(label.size), predict_y, color='red')
     plt.show()
 
-df = pd.read_excel("sheet_historyPower.xlsx")
+engine = create_engine('oracle+cx_oracle://system:tiger@192.168.1.114:1521/orcl1')
 
-X = df.iloc[:, 1:7]
+df = pd.read_sql('SELECT * FROM SYSTEM."sheet_historyPower"',engine)
+# df = pd.read_excel("sheet_historyPower.xlsx")
+
+X = pd.concat([df.iloc[:,1:7],df.iloc[:,11:12]],axis = 1)
 Y = df.iloc[:, 10:11]
 
-train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.3)
+train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.08)
 
-train_x = df.iloc[1:397, 1:7]
-train_y = df.iloc[1:397, 10:11]
-test_x = df.iloc[397:444, 1:7]
-test_y = df.iloc[397:444, 10:11]
+train_x = X.iloc[1:420, :]
+train_y = df.iloc[1:420, 10:11]
+test_x = X.iloc[420:, :]
+test_y = df.iloc[420:, 10:11]
+print(test_x)
 
 # print(test_x)
-# print(type(test_x))
+# print(test_y)
 
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
@@ -72,11 +77,11 @@ origin_predict_y = standard_scaler_y.inverse_transform(predict_yy).ravel()
 print(origin_predict_y)
 print(type(origin_predict_y))
 
-print("计算准确率误差")
+print("准确率")
 precession(origin_test_y, origin_predict_y)
 
 plot_result(origin_predict_y[0:], origin_test_y[0:])
 
-conn.commit()
-cursor.close()
-conn.close()
+# conn.commit()
+# cursor.close()
+# conn.close()

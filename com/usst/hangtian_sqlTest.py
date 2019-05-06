@@ -4,7 +4,7 @@ import datetime
 import os
 
 os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
-conn = cx_Oracle.connect('system', 'tiger', '192.168.1.108:1521/orcl1')
+conn = cx_Oracle.connect('system', 'tiger', '192.168.1.114:1521/orcl1')
 cursor = conn.cursor()
 
 # mainpower第一行数据得时间
@@ -36,12 +36,36 @@ def getCountOfSheet():
         count = i[0]
     return count
 
-# 存储语句
+# 存储语句，因为最大负荷是是后期处理的，所以另外采用update语句更新
 def storeData(list):
     # 传入数据list，保存
     # list = [date_time, 1, 2, 3, 4, 5, 6, 7, 8]
     sql = 'INSERT INTO SYSTEM."sheet_historyPower"(\"时间\",\"星期数\",\"当前整点数\",\"昨日此刻温度\",\"昨日此刻风速\",\"昨日此刻湿度\",\"昨日此刻负荷\",\"温度\",\"风速\",\"湿度\",\"负荷\") VALUES(:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11)'
     cursor.execute(sql, list)
+def storeMaxPower(date_time_begin,maxPower):
+    # 输入一个datetime时间和最大负荷
+    date_time_begin = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin = date_time_begin.split(' ')[0]
+    date_time_begin = date_time_begin + ' 00:00:00'
+    date_time_begin = datetime.datetime.strptime(date_time_begin, '%Y/%m/%d %H:%M:%S')
+    date_time_begin2 = date_time_begin + datetime.timedelta(hours=(24))
+    date_time_begin_for_search = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin_for_search2 = date_time_begin2.strftime("%Y/%m/%d %H:%M:%S")
+    maxPower = str(maxPower)
+    sqlExit = """
+    UPDATE SYSTEM."sheet_historyPower"
+    set SYSTEM."sheet_historyPower"."日最大负荷" =('
+    """ + maxPower + """
+    ')
+    WHERE
+    SYSTEM."sheet_historyPower"."时间" BETWEEN to_date('
+    """ + date_time_begin_for_search + """
+    ','yyyy-mm-dd hh24:mi:ss') AND to_date('
+    """ + date_time_begin_for_search2 + """
+    ','yyyy-mm-dd hh24:mi:ss')
+    """
+    cursor.execute(sqlExit)
+    conn.commit()
 
 # 返回某一行得时间，从1开始
 def getRowNumTimeOfSheet(rownum_in):
@@ -86,6 +110,36 @@ def hasNoRecord(date_time_begin):
         if j:
             hasRecord = 0
     return hasRecord
+
+def oneDayRecord(date_time_begin):
+    # 输入一个datetime时间，以list格式返回这个日期的所有负荷数据
+    date_time_begin = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin = date_time_begin.split(' ')[0]
+    date_time_begin = date_time_begin + ' 00:00:00'
+    date_time_begin = datetime.datetime.strptime(date_time_begin, '%Y/%m/%d %H:%M:%S')
+    date_time_begin2 = date_time_begin + datetime.timedelta(hours=(24))
+    date_time_begin_for_search = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin_for_search2 = date_time_begin2.strftime("%Y/%m/%d %H:%M:%S")
+    print(date_time_begin_for_search)
+    print(date_time_begin_for_search2)
+    sqlExit = """
+    SELECT
+    SYSTEM."sheet_historyPower"."负荷"
+    FROM
+    SYSTEM."sheet_historyPower"
+    WHERE
+    SYSTEM."sheet_historyPower"."时间" BETWEEN to_date('
+    """ + date_time_begin_for_search + """
+    ','yyyy-mm-dd hh24:mi:ss') AND to_date('
+    """ + date_time_begin_for_search2 + """
+    ','yyyy-mm-dd hh24:mi:ss')
+    """
+    result = cursor.execute(sqlExit)
+    dayRecord_list = []
+    for j in result:
+        # print(j)
+        dayRecord_list.append(j[0])
+    return dayRecord_list
 
 def getWindData(date_time_begin):
     # 输入datetime格式时间参数，转成str类型，只返回一个数据
@@ -234,7 +288,7 @@ def getmainsPowerData(date_time_begin):
 countOfData = getCountOfSheet()
 print(countOfData)
 for rownum in range(countOfData):
-    # 得到某一行得时间
+    # 得到某一行得时间,行数从1开始
     no = rownum + 1
     date_time = getRowNumTimeOfSheet(no)
     # 因为时间存储得差异，前后取1分钟
@@ -275,9 +329,9 @@ for rownum in range(countOfData):
     if hasNoRecord(date_time):
         storeData(values)
         conn.commit()
-        print('以保存:' + str(no))
+        print('已保存:' + str(no))
     else:
         print('已有记录')
-
+# conn.commit()
 cursor.close()
 conn.close()
