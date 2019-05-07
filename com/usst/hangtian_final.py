@@ -366,7 +366,6 @@ def hasNoPreRecord(date_time_begin):
         if j:
             hasRecord = 0
     return hasRecord
-# 返回某一行得时间，从1开始
 def getRowNumTimeOfMainsPowerSheet(rownum_in):
     # 输入int类型rownum（方便循环），转成str用于查询某一行的时间
     rownum = rownum_in
