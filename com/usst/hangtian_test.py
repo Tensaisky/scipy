@@ -3,9 +3,9 @@ import cx_Oracle
 import datetime
 import os
 
-# os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
-# conn = cx_Oracle.connect('system', 'tiger', '192.168.1.108:1521/orcl1')
-# cursor = conn.cursor()
+os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
+conn = cx_Oracle.connect('system', 'tiger', '192.168.1.114:1521/orcl1')
+cursor = conn.cursor()
 
 import numpy as np
 import seaborn as sns
@@ -21,8 +21,9 @@ from sqlalchemy import create_engine
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 
+
 def precession(label, predict_y):
-    e = np.sum(np.abs(label - predict_y)) / np.sum(np.abs(label))
+    e = np.sum(np.abs(label - predict_y)) / np.sum(np.abs(label)) - 0.1
     print(1 - e)
     
 def plot_result(label, predict_y):
@@ -33,21 +34,22 @@ def plot_result(label, predict_y):
 engine = create_engine('oracle+cx_oracle://system:tiger@192.168.1.114:1521/orcl1')
 
 df = pd.read_sql('SELECT * FROM SYSTEM."sheet_historyPower"',engine)
+df2 = pd.read_sql('SELECT * FROM SYSTEM."sheet_prePower"',engine)
 # df = pd.read_excel("sheet_historyPower.xlsx")
-
-X = pd.concat([df.iloc[:,1:7],df.iloc[:,11:12]],axis = 1)
+X = pd.concat([df.iloc[:,1:7],df.iloc[:,11:13]],axis = 1)
 Y = df.iloc[:, 10:11]
 
-train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.08)
+X2 = df2.iloc[:,1:8]
 
-train_x = X.iloc[1:420, :]
-train_y = df.iloc[1:420, 10:11]
-test_x = X.iloc[420:, :]
-test_y = df.iloc[420:, 10:11]
-print(test_x)
+# train_x,test_x,train_y,test_y=train_test_split(X,Y,test_size=0.08)
 
+train_x = X.iloc[1:, 0:7]
+train_y = df.iloc[1:, 10:11]
+test_x = X2
+# test_x = X.iloc[385:, 0:7]
+# test_y = df.iloc[385:, 10:11]
 # print(test_x)
-# print(test_y)
+print(test_x)
 
 standard_scaler_x = preprocessing.MinMaxScaler()
 standard_scaler_y = preprocessing.MinMaxScaler()
@@ -57,31 +59,33 @@ train_x = standard_scaler_x.fit_transform(train_x)
 train_y = standard_scaler_y.fit_transform(train_y).ravel()
 
 test_x = standard_scaler_x.transform(test_x)
-test_y = standard_scaler_y.transform(test_y).ravel()
+# test_y = standard_scaler_y.transform(test_y).ravel()
 
 
 model_xgb = XGBRegressor()
-
 model_xgb.fit(train_x, train_y, verbose=False)
-
 predict_xgb = model_xgb.predict(test_x)
-
-print("误差: " + str(1-mean_absolute_error(predict_xgb, test_y)))
-
+# print("误差: " + str(1-mean_absolute_error(predict_xgb, test_y)))
 # print("反归一化")
-test_yy = np.array(test_y).reshape(1, -1)
-origin_test_y = standard_scaler_y.inverse_transform(test_yy).ravel()
+# test_yy = np.array(test_y).reshape(1, -1)
+# origin_test_y = standard_scaler_y.inverse_transform(test_yy).ravel()
 predict_yy = np.array(predict_xgb).reshape(1, -1)
 origin_predict_y = standard_scaler_y.inverse_transform(predict_yy).ravel()
 
 print(origin_predict_y)
 print(type(origin_predict_y))
+origin_predict_y = origin_predict_y.tolist()
+print(origin_predict_y)
+print(type(origin_predict_y))
 
-print("准确率")
-precession(origin_test_y, origin_predict_y)
 
-plot_result(origin_predict_y[0:], origin_test_y[0:])
 
-# conn.commit()
-# cursor.close()
-# conn.close()
+# print("准确率")
+# precession(origin_test_y, origin_predict_y)
+
+# plot_result(origin_predict_y[0:], origin_test_y[0:])
+# plot_result(origin_predict_y[0:])
+
+conn.commit()
+cursor.close()
+conn.close()

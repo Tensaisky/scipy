@@ -18,13 +18,11 @@ def getFistTimeOfSheet():
     for i in result:
         date_time_begin = i[0]
     return date_time_begin
-
 # 传入时间，返回昨天此刻时间
 def getLastDayTime(daytimenow):
     # 传入当前日期时间datetime格式，返回昨天此刻时间数据
     daytimelast = daytimenow - datetime.timedelta(days=1)
     return daytimelast
-
 # 返回表得行数
 def getCountOfSheet():
     sql = """
@@ -35,7 +33,24 @@ def getCountOfSheet():
     for i in result:
         count = i[0]
     return count
-
+def getCountOfHistorySheet():
+    sql = """
+        select count(*) from SYSTEM."sheet_historyPower"
+    """
+    result = cursor.execute(sql)
+    count = 0
+    for i in result:
+        count = i[0]
+    return count
+def getCountOfPreSheet():
+    sql = """
+        select count(*) from SYSTEM."sheet_prePower"
+    """
+    result = cursor.execute(sql)
+    count = 0
+    for i in result:
+        count = i[0]
+    return count
 # 存储语句，因为最大负荷是是后期处理的，所以另外采用update语句更新
 def storeData(list):
     # 传入数据list，保存
@@ -66,7 +81,6 @@ def storeMaxPower(date_time_begin,maxPower):
     """
     cursor.execute(sqlExit)
     conn.commit()
-
 # 返回某一行得时间，从1开始
 def getRowNumTimeOfSheet(rownum_in):
     # 输入int类型rownum（方便循环），转成str用于查询某一行的时间
@@ -85,7 +99,6 @@ def getRowNumTimeOfSheet(rownum_in):
         date_time = i[1]
         # print(date_time)
     return date_time
-
 # 是否已经记录，有记录返回0，无记录返回1
 def hasNoRecord(date_time_begin):
     # 输入datetime格式时间参数，转成str类型，只返回一个数据
@@ -110,7 +123,7 @@ def hasNoRecord(date_time_begin):
         if j:
             hasRecord = 0
     return hasRecord
-
+# 某一日期的24个小时数据，返回列表
 def oneDayRecord(date_time_begin):
     # 输入一个datetime时间，以list格式返回这个日期的所有负荷数据
     date_time_begin = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
@@ -140,7 +153,47 @@ def oneDayRecord(date_time_begin):
         # print(j)
         dayRecord_list.append(j[0])
     return dayRecord_list
-
+def storeAveragePower(date_time_begin,avePower):
+    # 输入一个datetime时间和最大负荷
+    date_time_begin = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin = date_time_begin.split(' ')[0]
+    date_time_begin = date_time_begin + ' 00:00:00'
+    date_time_begin = datetime.datetime.strptime(date_time_begin, '%Y/%m/%d %H:%M:%S')
+    date_time_begin2 = date_time_begin + datetime.timedelta(hours=(24))
+    date_time_begin_for_search = date_time_begin.strftime("%Y/%m/%d %H:%M:%S")
+    date_time_begin_for_search2 = date_time_begin2.strftime("%Y/%m/%d %H:%M:%S")
+    avePower = str(avePower)
+    sqlExit = """
+    UPDATE SYSTEM."sheet_historyPower"
+    set SYSTEM."sheet_historyPower"."日平均负荷" =('
+    """ + avePower + """
+    ')
+    WHERE
+    SYSTEM."sheet_historyPower"."时间" BETWEEN to_date('
+    """ + date_time_begin_for_search + """
+    ','yyyy-mm-dd hh24:mi:ss') AND to_date('
+    """ + date_time_begin_for_search2 + """
+    ','yyyy-mm-dd hh24:mi:ss')
+    """
+    cursor.execute(sqlExit)
+    conn.commit()
+def loopStoreMaxAndAverage(num):
+    # 给出history表数据数量
+    for i in range(num):
+        time = getRowNumTimeOfSheet(i+1)
+        dayRecord_list = oneDayRecord(time)
+        # 日总负荷和平均负荷
+        allPower = 0
+        for j in range(len(dayRecord_list)):
+            allPower = allPower + dayRecord_list[j]
+        averagePower = allPower/len(dayRecord_list)
+        storeAveragePower(time,averagePower)
+        # 日最大负荷
+        maxPower = 0
+        for k in range(len(dayRecord_list)):
+            if dayRecord_list[k] > maxPower:
+                maxPower = dayRecord_list[k]
+        storeMaxPower(time,maxPower)
 def getWindData(date_time_begin):
     # 输入datetime格式时间参数，转成str类型，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -164,7 +217,6 @@ def getWindData(date_time_begin):
     for j in result1:
         windDate = j[0]
     return windDate
-
 def getWindSpeed(date_time_begin):
     # 输入时间参数，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -188,7 +240,6 @@ def getWindSpeed(date_time_begin):
     for j in result1:
         windSpeed = j[0]
     return windSpeed
-
 def getWindHumidity(date_time_begin):
     # 输入时间参数，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -212,7 +263,6 @@ def getWindHumidity(date_time_begin):
     for j in result1:
         windHumidity = j[0]
     return windHumidity
-
 def getSolarData(date_time_begin):
     # 输入时间参数，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -236,7 +286,6 @@ def getSolarData(date_time_begin):
     for j in result:
         solarDate = j[0]
     return solarDate
-
 def getSolarTemp(date_time_begin):
     # 输入时间参数，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -260,7 +309,6 @@ def getSolarTemp(date_time_begin):
     for j in result:
         solarTemp = j[0]
     return solarTemp
-
 def getmainsPowerData(date_time_begin):
     # 输入时间参数，只返回一个数据
     date_time_begin2 = date_time_begin + datetime.timedelta(minutes=(2))
@@ -332,6 +380,10 @@ for rownum in range(countOfData):
         print('已保存:' + str(no))
     else:
         print('已有记录')
-# conn.commit()
+        
+countOfHistory = getCountOfHistorySheet()
+loopStoreMaxAndAverage(getCountOfHistorySheet())
+
+conn.commit()
 cursor.close()
 conn.close()
